@@ -1,0 +1,44 @@
+name: build_qt6_msvc2022_32
+
+on: workflow_dispatch
+#on: [push, pull_request]
+
+env:
+  QT_VERSION: 6.8.4
+  QT_VERSION2: '6.8'
+  FILE_NAME: shared-Release_msvc2022_32
+
+jobs:
+  windows_msvc_shared_release:
+    runs-on: windows-2022
+
+    steps:
+    # 检出本仓库
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    # 安装python
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+        architecture: 'x64'
+
+    # 安装msvc(32位工具链)
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v3
+      with:
+        msbuild-architecture: x86
+
+    # 安装vsdevenv
+    # - name: Setup vsdevenv
+    #  uses: seanmiddleditch/gha-setup-vsdevenv@master
+    
+    - name: Setup MSVC Dev Environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+
+    - name: Check ninja
+      run: |
+        ninja --version
