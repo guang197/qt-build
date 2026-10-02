@@ -42,3 +42,61 @@ jobs:
     - name: Check ninja
       run: |
         ninja --version
+
+    - name: Download Qt6
+      run: |
+        # 创建文件夹
+        cd ..  #Directory: D:\a\qt-build
+        mkdir -p Qt
+
+        # 创建文件夹
+        cd Qt   #Directory: D:\a\qt-build\Qt
+        mkdir -p ${{env.QT_VERSION}}
+        mkdir -p ${{env.QT_VERSION}}-shared
+        ls # 查看文件夹内容
+
+        # 下载qt6, 源码目录为 D:\a\qt-build\Qt\${{env.QT_VERSION}}
+        curl -L -o qt-everywhere-src.zip https://download.qt.io/archive/qt/${{env.QT_VERSION2}}/${{env.QT_VERSION}}/single/qt-everywhere-opensource-src-${{env.QT_VERSION}}.zip
+        unzip -q qt-everywhere-src.zip -d ./${{env.QT_VERSION}}
+
+    - name: Build Qt6
+      shell: cmd
+      run: |
+        cd ..  #Directory: D:\a\qt-build
+        SET QT_VERSION=${{env.QT_VERSION}}
+        SET MSVC_VERSION=msvc2022_32
+        SET QT_PATH=D:\a\qt-build\Qt
+        
+        SET SRC_QT="%QT_PATH%\%QT_VERSION%\qt-everywhere-src-%QT_VERSION%"
+        SET INSTALL_DIR="%QT_PATH%\%QT_VERSION%-shared\%MSVC_VERSION%"
+        SET BUILD_DIR="%QT_PATH%\%QT_VERSION%\build-%MSVC_VERSION%"
+
+        mkdir "%BUILD_DIR%" && cd /d "%BUILD_DIR%"
+
+        call %SRC_QT%\configure.bat -shared -release -prefix %INSTALL_DIR% -nomake examples -nomake tests -skip qtwebengine -no-feature-sql-psql -opensource -confirm-license -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre -qt-freetype -qt-harfbuzz -qt-webp -qt-tiff -schannel -opengl desktop -platform win32-msvc
+
+        cmake --build . --parallel
+        ninja install
+        copy qt.conf %INSTALL_DIR%\bin
+
+    # 打包
+    - name: Package binaries
+      run: |
+        #ls     #Directory: D:\a\buildQt\buildQt(即仓库目录)
+        7z a Qt_${{env.QT_VERSION}}-${{env.FILE_NAME}}.7z ../Qt/${{env.QT_VERSION}}-shared -mx=9
+
+    # 上传
+    - uses: actions/upload-artifact@v7
+      with:
+        name: Qt_${{env.QT_VERSION}}-${{env.FILE_NAME}}
+        path: Qt_${{env.QT_VERSION}}-${{env.FILE_NAME}}.7z
+
+    # 发布
+    - name: TempRelease
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: temp_Qt_${{env.QT_VERSION}}-${{env.FILE_NAME}}
+        release_name: TempRelease_Qt_${{env.QT_VERSION}}-${{env.FILE_NAME}}
+        files: Qt_${{env.QT_VERSION}}-${{env.FILE_NAME}}.7z
+
+        
