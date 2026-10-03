@@ -73,7 +73,7 @@ jobs:
 
         mkdir "%BUILD_DIR%" && cd /d "%BUILD_DIR%"
 
-        call "%SRC_QT%\configure.bat" -shared -release -prefix %INSTALL_DIR% -nomake examples -nomake tests -skip qtwebengine -skip qtwebview -no-feature-sql-psql -opensource -confirm-license -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre -qt-freetype -qt-harfbuzz -qt-webp -qt-tiff -schannel -opengl desktop -platform win32-msvc
+        call "%SRC_QT%\configure.bat" -shared -release -prefix %INSTALL_DIR% -nomake examples -nomake tests -skip qtwebengine -no-feature-sql-psql -opensource -confirm-license -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre -qt-freetype -qt-harfbuzz -qt-webp -qt-tiff -schannel -opengl desktop -platform win32-msvc
 
         cmake --build . --parallel
         ninja install
