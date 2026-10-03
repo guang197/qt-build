@@ -67,17 +67,18 @@ jobs:
         SET MSVC_VERSION=msvc2022_32
         SET QT_PATH=D:\a\qt-build\Qt
         
-        SET SRC_QT="%QT_PATH%\%QT_VERSION%\qt-everywhere-src-%QT_VERSION%"
-        SET INSTALL_DIR="%QT_PATH%\%QT_VERSION%-shared\%MSVC_VERSION%"
-        SET BUILD_DIR="%QT_PATH%\%QT_VERSION%\build-%MSVC_VERSION%"
+        SET SRC_QT=%QT_PATH%\%QT_VERSION%\qt-everywhere-src-%QT_VERSION%
+        SET INSTALL_DIR=%QT_PATH%\%QT_VERSION%-shared\%MSVC_VERSION%
+        SET BUILD_DIR=%QT_PATH%\%QT_VERSION%\build-%MSVC_VERSION%
 
         mkdir "%BUILD_DIR%" && cd /d "%BUILD_DIR%"
 
-        call %SRC_QT%\configure.bat -shared -release -prefix %INSTALL_DIR% -nomake examples -nomake tests -skip qtwebengine -skip qtwebview -no-feature-sql-psql -opensource -confirm-license -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre -qt-freetype -qt-harfbuzz -qt-webp -qt-tiff -schannel -opengl desktop -platform win32-msvc
+        call "%SRC_QT%\configure.bat" -shared -release -prefix %INSTALL_DIR% -nomake examples -nomake tests -skip qtwebengine -skip qtwebview -no-feature-sql-psql -opensource -confirm-license -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre -qt-freetype -qt-harfbuzz -qt-webp -qt-tiff -schannel -opengl desktop -platform win32-msvc
 
         cmake --build . --parallel
         ninja install
-        copy qt.conf %INSTALL_DIR%\bin
+        echo [paths]>>%INSTALL_DIR%\bin\qt.conf
+        echo Prefix = ..>>%INSTALL_DIR%\bin\qt.conf
 
     # 打包
     - name: Package binaries
